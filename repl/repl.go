@@ -10,11 +10,11 @@ import (
 	"github.com/chzyer/readline"
 )
 
-const PROMPT = ">>> "
+const PROMPT = "\033[34m»\033[0m "
 
 func Start(in io.Reader, out io.Writer) {
 	l, err := readline.NewEx(&readline.Config{
-		Prompt:          "\033[34m»\033[0m ",
+		Prompt:          PROMPT,
 		HistoryFile:     "/tmp/my_compiler_readline.tmp",
 		InterruptPrompt: "^C",
 		EOFPrompt:       "exit",
