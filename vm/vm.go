@@ -59,7 +59,49 @@ func (vm *VM) Run() error {
 
 			leftValue := left.(*object.Integer).Value
 			rightValue := right.(*object.Integer).Value
-			vm.push(&object.Integer{Value: rightValue + leftValue})
+			vm.push(&object.Integer{Value: leftValue + rightValue})
+		case code.OpSub:
+			right, err := vm.pop()
+			if err != nil {
+				return err
+			}
+			left, err := vm.pop()
+			if err != nil {
+				return err
+			}
+
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+			vm.push(&object.Integer{Value: leftValue - rightValue})
+		case code.OpMul:
+			right, err := vm.pop()
+			if err != nil {
+				return err
+			}
+			left, err := vm.pop()
+			if err != nil {
+				return err
+			}
+
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+			vm.push(&object.Integer{Value: leftValue * rightValue})
+		case code.OpDiv:
+			right, err := vm.pop()
+			if err != nil {
+				return err
+			}
+			left, err := vm.pop()
+			if err != nil {
+				return err
+			}
+
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+			vm.push(&object.Integer{Value: leftValue / rightValue})
+
+		case code.OpPop:
+			vm.pop()
 		}
 	}
 
@@ -87,4 +129,8 @@ func (vm *VM) pop() (object.Object, error) {
 	vm.sp--
 
 	return o, nil
+}
+
+func (vm *VM) LastPoppedStackElem() object.Object {
+	return vm.stack[vm.sp]
 }
