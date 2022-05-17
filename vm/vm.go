@@ -47,58 +47,11 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
-		case code.OpAdd:
-			right, err := vm.pop()
+		case code.OpAdd, code.OpSub, code.OpMul, code.OpDiv:
+			err := vm.executeBinaryOperation(op)
 			if err != nil {
 				return err
 			}
-			left, err := vm.pop()
-			if err != nil {
-				return err
-			}
-
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
-			vm.push(&object.Integer{Value: leftValue + rightValue})
-		case code.OpSub:
-			right, err := vm.pop()
-			if err != nil {
-				return err
-			}
-			left, err := vm.pop()
-			if err != nil {
-				return err
-			}
-
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
-			vm.push(&object.Integer{Value: leftValue - rightValue})
-		case code.OpMul:
-			right, err := vm.pop()
-			if err != nil {
-				return err
-			}
-			left, err := vm.pop()
-			if err != nil {
-				return err
-			}
-
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
-			vm.push(&object.Integer{Value: leftValue * rightValue})
-		case code.OpDiv:
-			right, err := vm.pop()
-			if err != nil {
-				return err
-			}
-			left, err := vm.pop()
-			if err != nil {
-				return err
-			}
-
-			leftValue := left.(*object.Integer).Value
-			rightValue := right.(*object.Integer).Value
-			vm.push(&object.Integer{Value: leftValue / rightValue})
 
 		case code.OpPop:
 			vm.pop()
@@ -133,4 +86,52 @@ func (vm *VM) pop() (object.Object, error) {
 
 func (vm *VM) LastPoppedStackElem() object.Object {
 	return vm.stack[vm.sp]
+}
+
+func (vm *VM) executeBinaryOperation(op code.Opcode) error {
+	right, err := vm.pop()
+	if err != nil {
+		return err
+	}
+	left, err := vm.pop()
+	if err != nil {
+		return err
+	}
+
+	leftType := left.Type()
+	rightType := right.Type()
+
+	if leftType == object.INTEGER_OBJ && rightType == object.INTEGER_OBJ {
+		return vm.executeBinrayIntegerOperation(op, left, right)
+	}
+
+	return fmt.Errorf("unsupported types for binary operation: %s %s",
+		leftType, rightType)
+}
+
+func (vm *VM) executeBinrayIntegerOperation(
+	op code.Opcode,
+	left object.Object,
+	right object.Object,
+
+) error {
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+
+	var result int64
+
+	switch op {
+	case code.OpAdd:
+		result = leftValue + rightValue
+	case code.OpSub:
+		result = leftValue - rightValue
+	case code.OpMul:
+		result = leftValue * rightValue
+	case code.OpDiv:
+		result = leftValue / rightValue
+	default:
+		return fmt.Errorf("unknown integer operator: %d", op)
+	}
+
+	return vm.push(&object.Integer{Value: result})
 }
