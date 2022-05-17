@@ -47,6 +47,19 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
+		case code.OpAdd:
+			right, err := vm.pop()
+			if err != nil {
+				return err
+			}
+			left, err := vm.pop()
+			if err != nil {
+				return err
+			}
+
+			leftValue := left.(*object.Integer).Value
+			rightValue := right.(*object.Integer).Value
+			vm.push(&object.Integer{Value: rightValue + leftValue})
 		}
 	}
 
@@ -62,4 +75,16 @@ func (vm *VM) push(obj object.Object) error {
 	vm.sp++
 
 	return nil
+}
+
+func (vm *VM) pop() (object.Object, error) {
+	// TODO: do we need this?
+	if vm.sp == 0 {
+		return nil, fmt.Errorf("stack is empty")
+	}
+
+	o := vm.stack[vm.sp-1]
+	vm.sp--
+
+	return o, nil
 }
