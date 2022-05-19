@@ -9,6 +9,11 @@ import (
 
 const StackSize = 2048
 
+var (
+	True  = &object.Boolean{Value: true}
+	False = &object.Boolean{Value: false}
+)
+
 type VM struct {
 	constants    []object.Object
 	instructions code.Instructions
@@ -52,9 +57,17 @@ func (vm *VM) Run() error {
 			if err != nil {
 				return err
 			}
-
 		case code.OpPop:
 			vm.pop()
+		case code.OpTrue:
+			vm.push(True)
+		case code.OpFalse:
+			vm.push(False)
+		case code.OpEqual, code.OpGreaterThan, code.OpNotEqual:
+			err := vm.executeComparison(op)
+			if err != nil {
+				return err
+			}
 		}
 	}
 
@@ -134,4 +147,56 @@ func (vm *VM) executeBinrayIntegerOperation(
 	}
 
 	return vm.push(&object.Integer{Value: result})
+}
+
+func (vm *VM) executeComparison(op code.Opcode) error {
+	right, err := vm.pop()
+	if err != nil {
+		return err
+	}
+	left, err := vm.pop()
+	if err != nil {
+		return err
+	}
+
+	if left.Type() == object.INTEGER_OBJ && right.Type() == object.INTEGER_OBJ {
+		return vm.executeIntegerCompairson(op, left, right)
+	}
+
+	switch op {
+	case code.OpEqual:
+		return vm.push(nativeBoolBooleanObject(right == left))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolBooleanObject(right != left))
+	default:
+		return fmt.Errorf("unknown operator: %d (%s %s)",
+			op, left.Type(), right.Type())
+	}
+}
+
+func (vm *VM) executeIntegerCompairson(
+	op code.Opcode,
+	left object.Object,
+	right object.Object,
+) error {
+	leftValue := left.(*object.Integer).Value
+	rightValue := right.(*object.Integer).Value
+
+	switch op {
+	case code.OpEqual:
+		return vm.push(nativeBoolBooleanObject(rightValue == leftValue))
+	case code.OpNotEqual:
+		return vm.push(nativeBoolBooleanObject(rightValue != leftValue))
+	case code.OpGreaterThan:
+		return vm.push(nativeBoolBooleanObject(leftValue > rightValue))
+	default:
+		return fmt.Errorf("unknown operator: %d", op)
+	}
+}
+
+func nativeBoolBooleanObject(input bool) *object.Boolean {
+	if input {
+		return True
+	}
+	return False
 }
