@@ -134,12 +134,13 @@ func (c *Compiler) Compile(node ast.Node) error {
 			if err != nil {
 				return err
 			}
-
-			c.changeOperand(jumpPos, c.lastInstruction.Position)
-
+			
 			if c.lastInstructionIsPop() {
 				c.removeLastPop()
 			}
+
+			afterAlternativePos := len(c.instructions)
+			c.changeOperand(jumpPos, afterAlternativePos)
 		}
 
 
