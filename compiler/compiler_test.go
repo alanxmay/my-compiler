@@ -121,13 +121,13 @@ func testInstructioins(
 	concatted := concatInstructioins(expected)
 
 	if len(actual) != len(concatted) {
-		return fmt.Errorf("wrong instructions length.\nwant=%q\ngot=%q",
+		return fmt.Errorf("wrong instructions length.\nwant=%q\ngot =%q",
 			concatted, actual)
 	}
 
 	for i, ins := range concatted {
 		if actual[i] != ins {
-			return fmt.Errorf("wrong instruction at %d.\nwant=%q\ngot=%q",
+			return fmt.Errorf("wrong instruction at %d.\nwant=%q\ngot =%q",
 				i, concatted, actual)
 		}
 	}
@@ -266,6 +266,35 @@ func TestBooleanExpression(t *testing.T) {
 			expectedInstructions: []code.Instructions{
 				code.Make(code.OpTrue),
 				code.Make(code.OpBang),
+				code.Make(code.OpPop),
+			},
+		},
+	}
+
+	runCompilerTests(t, tests)
+}
+
+func TestConditionExpression(t *testing.T) {
+	tests := []compilerTestCase{
+		{
+			input:             "if (true) { 1; } else { 0; }; 3333;",
+			expectedConstants: []any{1, 0, 3333},
+			expectedInstructions: []code.Instructions{
+				// 0000
+				code.Make(code.OpTrue),
+				// 0001
+				code.Make(code.OpJumpNotTruthy, 10),
+				// 0004
+				code.Make(code.OpConstant, 0),
+				// 0007
+				code.Make(code.OpJump, 13),
+				// 0010
+				code.Make(code.OpConstant, 1),
+				// 0013
+				code.Make(code.OpPop),
+				// 0014
+				code.Make(code.OpConstant, 2),
+				// 0017
 				code.Make(code.OpPop),
 			},
 		},
