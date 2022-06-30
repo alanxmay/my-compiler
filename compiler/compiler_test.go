@@ -91,14 +91,14 @@ func runCompilerTests(t *testing.T, tests []compilerTestCase) {
 		compiler := New()
 		err := compiler.Compile(program)
 		if err != nil {
-			t.Fatalf("compiler errror: %s", err)
+			t.Fatalf("compiler error: %s", err)
 		}
 
 		bytecode := compiler.Bytecode()
 
-		err = testInstructioins(tt.expectedInstructions, bytecode.Instructions)
+		err = testInstructions(tt.expectedInstructions, bytecode.Instructions)
 		if err != nil {
-			t.Fatalf("testInstructioins failed: %s", err)
+			t.Fatalf("testInstructions failed: %s", err)
 		}
 
 		err = testConstants(t, tt.expectedConstants, bytecode.Constants)
@@ -114,11 +114,11 @@ func parse(input string) *ast.Program {
 	return p.ParseProgram()
 }
 
-func testInstructioins(
+func testInstructions(
 	expected []code.Instructions,
 	actual code.Instructions,
 ) error {
-	concatted := concatInstructioins(expected)
+	concatted := concatInstructions(expected)
 
 	if len(actual) != len(concatted) {
 		return fmt.Errorf("wrong instructions length.\nwant=%q\ngot =%q",
@@ -135,7 +135,7 @@ func testInstructioins(
 	return nil
 }
 
-func concatInstructioins(s []code.Instructions) code.Instructions {
+func concatInstructions(s []code.Instructions) code.Instructions {
 	out := code.Instructions{}
 
 	for _, ins := range s {

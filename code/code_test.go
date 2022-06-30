@@ -16,7 +16,7 @@ func TestMake(t *testing.T) {
 		instruction := Make(tt.op, tt.operands...)
 
 		if len(instruction) != len(tt.expected) {
-			t.Errorf("instruction has wrong lenght. want=%d, got=%d",
+			t.Errorf("instruction has wrong length. want=%d, got=%d",
 				len(tt.expected),
 				len(instruction),
 			)
@@ -31,7 +31,7 @@ func TestMake(t *testing.T) {
 	}
 }
 
-func TestInstructioinsString(t *testing.T) {
+func TestInstructionsString(t *testing.T) {
 	instructions := []Instructions{
 		Make(OpAdd),
 		Make(OpConstant, 2),
